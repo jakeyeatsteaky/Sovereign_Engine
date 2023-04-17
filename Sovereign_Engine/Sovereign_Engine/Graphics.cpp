@@ -173,6 +173,11 @@ void Graphics::RenderFrame()
 
 	size_t verticesSize = sizeof(vertices);
 
+	Vec3 vertex1 = Vec3(-0.5, -0.5, 0.0);
+	Vec3 vertex2 = Vec3(0.5, -0.5, 0.0);
+	Vec3 vertex3 = Vec3(0.0, 0.5, 0.0);
+
+	DrawTriangle(vertex1, vertex2, vertex3, 0xff00ffff);
 	DrawTriangle(vertices, verticesSize);
 	SDL_GL_SwapWindow(window);
 }
@@ -262,7 +267,7 @@ void Graphics::DrawTriangle(float vertices[], size_t verticesSize)
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 	model = glm::rotate(model, value, glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	view = glm::translate(view, glm::vec3(-5.0f, 0.0f, -25.0f));
 	projection = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
 	unsigned int modelLoc = glGetUniformLocation(shader.getID(), "model");
 	unsigned int viewLoc = glGetUniformLocation(shader.getID(), "view");
@@ -293,6 +298,8 @@ void Graphics::DrawTriangle(const Vec3& vertex1, const Vec3& vertex2, const  Vec
 		"void main()\n"
 		"{\n"
 		"   FragColor = vec4(0.0f,1.0f,0.0f, 1.0f);\n"
+		"	if(gl_FragCoord.x > gl_FragCoord.y)\n"
+		"		FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);  "
 		"}\n\0";
 
 	//----- Vertex Shader -----//
