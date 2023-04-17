@@ -10,7 +10,6 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
-
 #include "DataStructures.h"
 
 class VAO;
@@ -42,7 +41,6 @@ struct Graphics
 	static unsigned int CreateVertexShader(const char* vertexShaderSource);
 	static unsigned int CreateFragmentShader(const char* fragmentShaderSource);
 	static unsigned int CreateShaderProgram(unsigned int vertexShader, unsigned int fragmentShader);
-
 
 	static void DrawTriangle(float vertices[], size_t verticesSize);
 	static void DrawTriangle(const Vec3& vertex1, const Vec3& vertex2, const Vec3& vertex3, uint32_t color);
@@ -78,8 +76,6 @@ public:
 		printf("Deleting VAO object");
 		glDeleteVertexArrays((GLsizei)size, &vao_idx);
 	}
-
-
 
 	//private:
 	size_t size;

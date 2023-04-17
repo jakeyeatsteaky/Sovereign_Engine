@@ -110,7 +110,7 @@ void Graphics::CloseWindow()
 void Graphics::ClearScreen(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 {
 	glClearColor(red, green, blue, alpha);
-	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glViewport(0, 0, (GLsizei)windowWidth, (GLsizei)windowHeight);
 	GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
@@ -128,11 +128,49 @@ void Graphics::ClearScreen(GLfloat red, GLfloat green, GLfloat blue, GLfloat alp
 void Graphics::RenderFrame()
 {
 	float vertices[] = {
-		// positions         // colors
-	   -0.5f, -0.2887f, 0.0f,  1.0f, 0.0f, 0.0f,
-		0.5f, -0.2887f, 0.0f,  0.0f, 1.0f, 0.0f,
-		0.0f, 0.5774f, 0.0f,    0.0f, 0.0f, 1.0f
+	-0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
+	 0.5f, -0.5f, -0.5f,  0.0, 0.0, 1.0,
+	 0.5f,  0.5f, -0.5f,  0.0, 1.0, 0.0,
+	 0.5f,  0.5f, -0.5f,  1.0, 0.0, 0.0,
+	-0.5f,  0.5f, -0.5f,  0.0, 1.0, 0.0,
+	-0.5f, -0.5f, -0.5f,  0.0, 0.0, 1.0,
+
+	-0.5f, -0.5f,  0.5f,  1.0, 0.0, 0.0,
+	 0.5f, -0.5f,  0.5f,  0.0, 0.0, 1.0,
+	 0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
+	 0.5f,  0.5f,  0.5f,  1.0, 0.0, 0.0,
+	-0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
+	-0.5f, -0.5f,  0.5f,  0.0, 0.0, 1.0,
+
+	-0.5f,  0.5f,  0.5f,  1.0, 0.0, 0.0,
+	-0.5f,  0.5f, -0.5f,  0.0, 0.0, 1.0,
+	-0.5f, -0.5f, -0.5f,  0.0, 1.0, 0.0,
+	-0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
+	-0.5f, -0.5f,  0.5f,  0.0, 1.0, 0.0,
+	-0.5f,  0.5f,  0.5f,  0.0, 0.0, 1.0,
+
+	 0.5f,  0.5f,  0.5f,  1.0, 0.0, 0.0,
+	 0.5f,  0.5f, -0.5f,  0.0, 0.0, 1.0,
+	 0.5f, -0.5f, -0.5f,  0.0, 1.0, 0.0,
+	 0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
+	 0.5f, -0.5f,  0.5f,  0.0, 1.0, 0.0,
+	 0.5f,  0.5f,  0.5f,  0.0, 0.0, 1.0,
+
+	-0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
+	 0.5f, -0.5f, -0.5f,  0.0, 0.0, 1.0,
+	 0.5f, -0.5f,  0.5f,  0.0, 1.0, 0.0,
+	 0.5f, -0.5f,  0.5f,  1.0, 0.0, 0.0,
+	-0.5f, -0.5f,  0.5f,  0.0, 1.0, 0.0,
+	-0.5f, -0.5f, -0.5f,  0.0, 0.0, 1.0,
+
+	-0.5f,  0.5f, -0.5f,  1.0, 0.0, 0.0,
+	 0.5f,  0.5f, -0.5f,  0.0, 0.0, 1.0,
+	 0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
+	 0.5f,  0.5f,  0.5f,  1.0, 0.0, 0.0,
+	-0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
+	-0.5f,  0.5f, -0.5f,  0.0, 0.0, 1.0
 	};
+
 	size_t verticesSize = sizeof(vertices);
 
 	DrawTriangle(vertices, verticesSize);
@@ -201,16 +239,17 @@ unsigned int Graphics::CreateShaderProgram(unsigned int vertexShader, unsigned i
 
 void Graphics::DrawTriangle(float vertices[], size_t verticesSize)
 {
+	glEnable(GL_DEPTH_TEST);
 	std::string vertexPath = "../shaders/shader1.vert";
 	std::string fragmentPath = "../shaders/shader1.frag";
 	Shader shader = Shader(vertexPath.c_str(), fragmentPath.c_str());
 
+
 	vertexArrayObjects.at(0)->BindVertexArray();
 	vertexBufferObjects.at(0)->Bind(vertices, verticesSize);
-
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);	// position Attribute
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));	// color Attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));	// position Attribute
 	glEnableVertexAttribArray(1);
 
 	vertexArrayObjects.at(0)->ClearFromBinding();
@@ -218,19 +257,26 @@ void Graphics::DrawTriangle(float vertices[], size_t verticesSize)
 
 	shader.use();
 
-	float value = (float)SDL_GetTicks();
-	glm::mat4 trans(1.0f);
-	trans = glm::rotate(trans, glm::radians(value), glm::vec3(0.0f, 0.0f, 1.0f));
-	unsigned int transLoc = glGetUniformLocation(shader.getID(), "transform");
-	glUniformMatrix4fv(transLoc, 1, GL_FALSE, glm::value_ptr(trans));
+	float value = (float)SDL_GetTicks()/1000.0f;
+	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+	glm::mat4 view = glm::mat4(1.0f);
+	glm::mat4 projection = glm::mat4(1.0f);
+	model = glm::rotate(model, value, glm::vec3(0.5f, 1.0f, 0.0f));
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	projection = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
+	unsigned int modelLoc = glGetUniformLocation(shader.getID(), "model");
+	unsigned int viewLoc = glGetUniformLocation(shader.getID(), "view");
+	// pass them to the shaders (3 different ways)
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+
+	shader.setMat4("projection", projection);
 
 	vertexArrayObjects.at(0)->BindVertexArray();
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	vertexArrayObjects.at(0)->ClearFromBinding();
-
-
 }
 
 void Graphics::DrawTriangle(const Vec3& vertex1, const Vec3& vertex2, const  Vec3& vertex3, uint32_t color)
