@@ -17,8 +17,8 @@ SDL_GLContext Graphics::context = NULL;
 size_t Graphics::windowWidth = Graphics::WINDOW_WIDTH;
 size_t Graphics::windowHeight = Graphics::WINDOW_HEIGHT;
 GLfloat Graphics::aspect = 0.0f;
-std::vector<std::shared_ptr<VAO>> Graphics::vertexArrayObjects = {};
-std::vector<std::shared_ptr<VBO>> Graphics::vertexBufferObjects = {};
+std::vector<std::shared_ptr<VertexArray>> Graphics::vertexArrayObjects = {};
+std::vector<std::shared_ptr<VertexBuffer>> Graphics::vertexBufferObjects = {};
 
 
 const char* WINDOW_TITLE = "3D SDL App";
@@ -88,45 +88,7 @@ void Graphics::GLSetup()
 	glLoadIdentity();
 
 	//
-	std::shared_ptr<VAO> vao = std::make_shared<VAO>(1);
-	std::shared_ptr<VBO> vbo = std::make_shared<VBO>(1);
-	vertexArrayObjects.push_back(vao);
-	vertexBufferObjects.push_back(vbo);
-}
 
-void Graphics::Update()
-{
-
-}
-
-void Graphics::CloseWindow()
-{
-	SDL_GL_DeleteContext(context);
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-}
-
-void Graphics::ClearScreen(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
-{
-	glClearColor(red, green, blue, alpha);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glViewport(0, 0, (GLsizei)windowWidth, (GLsizei)windowHeight);
-	GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
-	GraphicsUtility::gluPerspective(45.0f, aspect, 0.1f, 100.0f);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glMatrixMode(GL_MODELVIEW);
-
-	// Reset the current transform
-	glLoadIdentity();
-}
-
-
-void Graphics::RenderFrame()
-{
 	float vertices[] = {
 	-0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
 	 0.5f, -0.5f, -0.5f,  0.0, 0.0, 1.0,
@@ -173,12 +135,56 @@ void Graphics::RenderFrame()
 
 	size_t verticesSize = sizeof(vertices);
 
-	Vec3 vertex1 = Vec3(-0.5, -0.5, 0.0);
-	Vec3 vertex2 = Vec3(0.5, -0.5, 0.0);
-	Vec3 vertex3 = Vec3(0.0, 0.5, 0.0);
 
-	DrawTriangle(vertex1, vertex2, vertex3, 0xff00ffff);
-	DrawTriangle(vertices, verticesSize);
+	std::shared_ptr<VertexArray> vao = std::make_shared<VertexArray>();
+	std::shared_ptr<VertexBuffer> vbo = std::make_shared<VertexBuffer>(1);
+
+	vao->AddBuffer(*vbo);
+	vbo->Bind(vertices, verticesSize);
+
+
+	vertexArrayObjects.push_back(vao);
+	vertexBufferObjects.push_back(vbo);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Graphics::Update()
+{
+
+}
+
+void Graphics::CloseWindow()
+{
+	SDL_GL_DeleteContext(context);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
+}
+
+void Graphics::ClearScreen(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+{
+	glClearColor(red, green, blue, alpha);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glViewport(0, 0, (GLsizei)windowWidth, (GLsizei)windowHeight);
+	GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
+	GraphicsUtility::gluPerspective(45.0f, aspect, 0.1f, 100.0f);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glMatrixMode(GL_MODELVIEW);
+
+	// Reset the current transform
+	glLoadIdentity();
+}
+
+
+void Graphics::RenderFrame()
+{
+	DrawTriangle();
+
 	SDL_GL_SwapWindow(window);
 }
 
@@ -242,23 +248,21 @@ unsigned int Graphics::CreateShaderProgram(unsigned int vertexShader, unsigned i
 	return shaderProgram;
 }
 
-void Graphics::DrawTriangle(float vertices[], size_t verticesSize)
+void Graphics::DrawTriangle()
 {
 	glEnable(GL_DEPTH_TEST);
 	std::string vertexPath = "../shaders/shader1.vert";
 	std::string fragmentPath = "../shaders/shader1.frag";
 	Shader shader = Shader(vertexPath.c_str(), fragmentPath.c_str());
 
-
 	vertexArrayObjects.at(0)->BindVertexArray();
-	vertexBufferObjects.at(0)->Bind(vertices, verticesSize);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);	// position Attribute
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));	// position Attribute
-	glEnableVertexAttribArray(1);
+	vertexArrayObjects.at(0)->BindBuffer(0);
 
-	vertexArrayObjects.at(0)->ClearFromBinding();
-	vertexBufferObjects.at(0)->ClearFromBinding();
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);	// position Attribute
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));	// position Attribute
 
 	shader.use();
 
@@ -267,7 +271,7 @@ void Graphics::DrawTriangle(float vertices[], size_t verticesSize)
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 	model = glm::rotate(model, value, glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(-5.0f, 0.0f, -25.0f));
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
 	projection = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
 	unsigned int modelLoc = glGetUniformLocation(shader.getID(), "model");
 	unsigned int viewLoc = glGetUniformLocation(shader.getID(), "view");
@@ -277,11 +281,7 @@ void Graphics::DrawTriangle(float vertices[], size_t verticesSize)
 
 	shader.setMat4("projection", projection);
 
-	vertexArrayObjects.at(0)->BindVertexArray();
-
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	vertexArrayObjects.at(0)->ClearFromBinding();
 }
 
 void Graphics::DrawTriangle(const Vec3& vertex1, const Vec3& vertex2, const  Vec3& vertex3, uint32_t color)
@@ -319,8 +319,8 @@ void Graphics::DrawTriangle(const Vec3& vertex1, const Vec3& vertex2, const  Vec
 		vertex3.xPos, vertex3.yPos, vertex3.zPos
 	};
 
-	std::shared_ptr<VAO> vao = vertexArrayObjects.at(0);
-	std::shared_ptr<VBO> vbo = vertexBufferObjects.at(0);
+	std::shared_ptr<VertexArray> vao = vertexArrayObjects.at(0);
+	std::shared_ptr<VertexBuffer> vbo = vertexBufferObjects.at(0);
 
 	vao->BindVertexArray();
 	vbo->Bind(vertices, sizeof(vertices));
@@ -506,5 +506,4 @@ void Graphics::DrawPyramid_Deprecated(GLfloat xPos, GLfloat yPos, GLfloat zPos)
 	glLoadIdentity();
 
 }
-
 
