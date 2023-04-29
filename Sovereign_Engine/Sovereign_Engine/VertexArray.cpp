@@ -48,5 +48,5 @@ VertexBuffer& VertexArray::GetBuffer(size_t idx)
 
 void VertexArray::BindBuffer(size_t idx)
 {
-	glBindBuffer(GL_ARRAY_BUFFER, m_buffers[idx].GetIdx());
+	//m_buffers[idx].Bind()
 }

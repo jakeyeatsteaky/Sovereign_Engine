@@ -3,22 +3,23 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include "Graphics.h"
 #include "Shaders.h"
 
 
-SDL_Window* Graphics::window = NULL;
-SDL_Renderer* Graphics::renderer = NULL;
+SDL_Window* Graphics::window = nullptr;
+SDL_Renderer* Graphics::renderer = nullptr;
 SDL_GLContext Graphics::context = NULL;
+Camera* Graphics::camera = nullptr;
 size_t Graphics::windowWidth = Graphics::WINDOW_WIDTH;
 size_t Graphics::windowHeight = Graphics::WINDOW_HEIGHT;
 GLfloat Graphics::aspect = 0.0f;
 std::vector<std::shared_ptr<VertexArray>> Graphics::vertexArrayObjects = {};
 std::vector<std::shared_ptr<VertexBuffer>> Graphics::vertexBufferObjects = {};
+std::vector<Shader*> Graphics::shaders = {};
+glm::mat4 Graphics::model = glm::mat4(1.0f);
+//glm::mat4 Graphics::view = glm::mat4(1.0f);
+glm::mat4 Graphics::projection = glm::mat4(1.0f);
 
 
 const char* WINDOW_TITLE = "3D SDL App";
@@ -36,7 +37,6 @@ namespace GraphicsUtility
 
 		glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
 	}
-
 }
 
 
@@ -80,6 +80,66 @@ bool Graphics::OpenWindow()
 
 void Graphics::GLSetup()
 {
+	Init();
+	SetupShaders("../shaders/shader1.vert", "../shaders/shader1.frag");
+
+	// GLLoadGeometr
+	float vertices[] = {
+	-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f
+	};
+
+	unsigned int indices[] = {
+	0, 1, 2, // front face
+	2, 3, 0,
+	1, 5, 6, // right face
+	6, 2, 1,
+	7, 6, 5, // back face
+	5, 4, 7,
+	4, 0, 3, // left face
+	3, 7, 4,
+	4, 5, 1, // bottom face
+	1, 0, 4,
+	3, 2, 6, // top face
+	6, 7, 3
+	};
+
+	size_t verticesSize = sizeof(vertices);
+	size_t indicesSize = sizeof(indices);
+	//endGLLoadGeometry
+
+
+	// Create Buffer/Array objects
+	for (int i = 0; i < 5; ++i)
+	{
+		std::shared_ptr<VertexArray> vao = std::make_shared<VertexArray>();
+		std::shared_ptr<VertexBuffer> vbo = std::make_shared<VertexBuffer>();
+
+		vbo->Bind(vertices, indices, verticesSize, indicesSize);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);	// position Attribute
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));	// position Attribute
+		glEnableVertexAttribArray(1);
+
+		vertexArrayObjects.push_back(vao);
+		vertexBufferObjects.push_back(vbo);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+	// end create BAOs
+}
+
+void Graphics::Init()
+{
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glShadeModel(GL_SMOOTH);
@@ -87,72 +147,23 @@ void Graphics::GLSetup()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	//
+	camera = new Camera();
+	
+}
 
-	float vertices[] = {
-	-0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
-	 0.5f, -0.5f, -0.5f,  0.0, 0.0, 1.0,
-	 0.5f,  0.5f, -0.5f,  0.0, 1.0, 0.0,
-	 0.5f,  0.5f, -0.5f,  1.0, 0.0, 0.0,
-	-0.5f,  0.5f, -0.5f,  0.0, 1.0, 0.0,
-	-0.5f, -0.5f, -0.5f,  0.0, 0.0, 1.0,
-
-	-0.5f, -0.5f,  0.5f,  1.0, 0.0, 0.0,
-	 0.5f, -0.5f,  0.5f,  0.0, 0.0, 1.0,
-	 0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
-	 0.5f,  0.5f,  0.5f,  1.0, 0.0, 0.0,
-	-0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
-	-0.5f, -0.5f,  0.5f,  0.0, 0.0, 1.0,
-
-	-0.5f,  0.5f,  0.5f,  1.0, 0.0, 0.0,
-	-0.5f,  0.5f, -0.5f,  0.0, 0.0, 1.0,
-	-0.5f, -0.5f, -0.5f,  0.0, 1.0, 0.0,
-	-0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
-	-0.5f, -0.5f,  0.5f,  0.0, 1.0, 0.0,
-	-0.5f,  0.5f,  0.5f,  0.0, 0.0, 1.0,
-
-	 0.5f,  0.5f,  0.5f,  1.0, 0.0, 0.0,
-	 0.5f,  0.5f, -0.5f,  0.0, 0.0, 1.0,
-	 0.5f, -0.5f, -0.5f,  0.0, 1.0, 0.0,
-	 0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
-	 0.5f, -0.5f,  0.5f,  0.0, 1.0, 0.0,
-	 0.5f,  0.5f,  0.5f,  0.0, 0.0, 1.0,
-
-	-0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
-	 0.5f, -0.5f, -0.5f,  0.0, 0.0, 1.0,
-	 0.5f, -0.5f,  0.5f,  0.0, 1.0, 0.0,
-	 0.5f, -0.5f,  0.5f,  1.0, 0.0, 0.0,
-	-0.5f, -0.5f,  0.5f,  0.0, 1.0, 0.0,
-	-0.5f, -0.5f, -0.5f,  0.0, 0.0, 1.0,
-
-	-0.5f,  0.5f, -0.5f,  1.0, 0.0, 0.0,
-	 0.5f,  0.5f, -0.5f,  0.0, 0.0, 1.0,
-	 0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
-	 0.5f,  0.5f,  0.5f,  1.0, 0.0, 0.0,
-	-0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
-	-0.5f,  0.5f, -0.5f,  0.0, 0.0, 1.0
-	};
-
-	size_t verticesSize = sizeof(vertices);
-
-
-	std::shared_ptr<VertexArray> vao = std::make_shared<VertexArray>();
-	std::shared_ptr<VertexBuffer> vbo = std::make_shared<VertexBuffer>(1);
-
-	vao->AddBuffer(*vbo);
-	vbo->Bind(vertices, verticesSize);
-
-
-	vertexArrayObjects.push_back(vao);
-	vertexBufferObjects.push_back(vbo);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+void Graphics::SetupShaders(std::string vertexPath, std::string fragmentPath)
+{
+	Shader* shader = new Shader(vertexPath.c_str(), fragmentPath.c_str());
+	shaders.push_back(shader);
 }
 
 void Graphics::Update()
 {
+	model = glm::mat4(1.0f);
+	camera->view = glm::mat4(1.0f);
+	projection = glm::mat4(1.0f);
 
+	
 }
 
 void Graphics::CloseWindow()
@@ -180,109 +191,60 @@ void Graphics::ClearScreen(GLfloat red, GLfloat green, GLfloat blue, GLfloat alp
 	glLoadIdentity();
 }
 
-
 void Graphics::RenderFrame()
 {
-	DrawTriangle();
+	glm::vec3 cubePositions[] = {
+		
+		glm::vec3(2.4f, -0.4f, -15.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
 
+	float tick = SDL_GetTicks() / 1000.f;
+
+	for (size_t i = 0; i <= 5; ++i)
+	{
+		model = glm::rotate(model, tick, glm::vec3(0.f, 1.f, 0.5f));
+		camera->view = glm::translate(camera->view, cubePositions[i] += camera->camVec);
+		projection = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
+			
+		SpecifyShader(0);
+		SetActiveVAO(i);
+		Draw();
+
+	}
+
+	SwapBuffers();
+}
+
+void Graphics::SpecifyShader(int shaderIdx)
+{
+	Shader* shader = shaders.at(shaderIdx);
+	shader->use();
+	shader->setMat4Uniform("model", model);
+	shader->setMat4Uniform("view", camera->view);
+	shader->setMat4Uniform("projection", projection);
+}
+
+void Graphics::SetActiveVAO(int vaoIdx)
+{
+	vertexArrayObjects.at(vaoIdx)->BindVertexArray();
+}
+
+void Graphics::Draw()
+{
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+}
+
+void Graphics::SwapBuffers()
+{
 	SDL_GL_SwapWindow(window);
 }
 
-unsigned int Graphics::CreateVertexShader(const char* vertexShaderSource)
-{
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	return vertexShader;
-}
-
-unsigned int Graphics::CreateFragmentShader(const char* fragmentShaderSource)
-{
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	int success;
-	char infoLog[512];
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	return fragmentShader;
-}
-
-unsigned int Graphics::CreateShaderProgram(unsigned int vertexShader, unsigned int fragmentShader)
-{
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	int success;
-	char infoLog[512];
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	return shaderProgram;
-}
-
-void Graphics::DrawTriangle()
-{
-	glEnable(GL_DEPTH_TEST);
-	std::string vertexPath = "../shaders/shader1.vert";
-	std::string fragmentPath = "../shaders/shader1.frag";
-	Shader shader = Shader(vertexPath.c_str(), fragmentPath.c_str());
-
-	vertexArrayObjects.at(0)->BindVertexArray();
-	vertexArrayObjects.at(0)->BindBuffer(0);
-
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);	// position Attribute
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));	// position Attribute
-
-	shader.use();
-
-	float value = (float)SDL_GetTicks()/1000.0f;
-	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-	model = glm::rotate(model, value, glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
-	projection = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
-	unsigned int modelLoc = glGetUniformLocation(shader.getID(), "model");
-	unsigned int viewLoc = glGetUniformLocation(shader.getID(), "view");
-	// pass them to the shaders (3 different ways)
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-
-	shader.setMat4("projection", projection);
-
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-}
+#ifdef USE_DEPRECATED
 
 void Graphics::DrawTriangle(const Vec3& vertex1, const Vec3& vertex2, const  Vec3& vertex3, uint32_t color)
 {
@@ -323,7 +285,7 @@ void Graphics::DrawTriangle(const Vec3& vertex1, const Vec3& vertex2, const  Vec
 	std::shared_ptr<VertexBuffer> vbo = vertexBufferObjects.at(0);
 
 	vao->BindVertexArray();
-	vbo->Bind(vertices, sizeof(vertices));
+	//vbo->Bind(vertices, sizeof(vertices));
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -381,7 +343,7 @@ void Graphics::DrawRectangle(const Vec3& vertex1, const Vec3& vertex2, const Vec
 	unsigned int indices[] = { 0,1,3,1,2,3 };
 
 	vertexArrayObjects.at(0)->BindVertexArray();
-	vertexBufferObjects.at(0)->Bind(vertices, sizeof(vertices));
+	//vertexBufferObjects.at(0)->Bind(vertices, sizeof(vertices));
 	unsigned int EBO;
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -507,3 +469,64 @@ void Graphics::DrawPyramid_Deprecated(GLfloat xPos, GLfloat yPos, GLfloat zPos)
 
 }
 
+unsigned int Graphics::CreateVertexShader(const char* vertexShaderSource)
+{
+	unsigned int vertexShader;
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+
+	int success;
+	char infoLog[512];
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+		std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+	return vertexShader;
+}
+
+unsigned int Graphics::CreateFragmentShader(const char* fragmentShaderSource)
+{
+	unsigned int fragmentShader;
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+
+	int success;
+	char infoLog[512];
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+	return fragmentShader;
+}
+
+unsigned int Graphics::CreateShaderProgram(unsigned int vertexShader, unsigned int fragmentShader)
+{
+	unsigned int shaderProgram;
+	shaderProgram = glCreateProgram();
+
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	int success;
+	char infoLog[512];
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+	return shaderProgram;
+}
+
+#endif

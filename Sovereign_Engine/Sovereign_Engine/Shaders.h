@@ -16,10 +16,10 @@ public:
 	void use() const;
 	unsigned int getID() const { return ID; }
 
-	void setBool(const std::string& name, bool value) const;
-	void setInt(const std::string& name, int value) const;
-	void setFloat(const std::string& name, float value) const;
-	void setMat4(const std::string& name, const glm::mat4& mat) const;
+	void setBoolUniform(const std::string& name, bool value) const;
+	void setIntUniform(const std::string& name, int value) const;
+	void setFloatUniform(const std::string& name, float value) const;
+	void setMat4Uniform(const std::string& name, const glm::mat4& mat) const;
 
 private:
 	unsigned int ID;

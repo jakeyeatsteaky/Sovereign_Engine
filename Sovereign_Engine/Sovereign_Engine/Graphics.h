@@ -12,7 +12,12 @@
 
 #include "DataStructures.h"
 #include "VertexArray.h"
+#include "Shaders.h"
 #include "VertexBuffer.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+class Camera;
 
 struct Graphics
 {
@@ -25,23 +30,36 @@ struct Graphics
 	static SDL_Renderer* renderer;
 	static SDL_GLContext context;
 	static GLfloat aspect;
+	static Camera* camera;
 	static std::vector<std::shared_ptr<VertexArray>> vertexArrayObjects;
 	static std::vector<std::shared_ptr<VertexBuffer>> vertexBufferObjects;
+	static std::vector<Shader*> shaders;
+	static glm::mat4 model;
+	//static glm::mat4 view;
+	static glm::mat4 projection;
+
+
 
 	static size_t Width() { return windowWidth; }
 	static size_t Height() { return windowHeight; }
 	static bool OpenWindow();
 	static void GLSetup();
+	static void Init();
+	static void SetupShaders(std::string vertexPath, std::string fragmentPath);
 	static void CloseWindow();
 	static void Update();
+	static void SpecifyShader(int shaderIdx);
 	static void ClearScreen(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 	static void RenderFrame();
+	static void SetActiveVAO(int vaoIdx);
 
 	static unsigned int CreateVertexShader(const char* vertexShaderSource);
 	static unsigned int CreateFragmentShader(const char* fragmentShaderSource);
 	static unsigned int CreateShaderProgram(unsigned int vertexShader, unsigned int fragmentShader);
 
-	static void DrawTriangle();
+	static void Draw();
+	static void SwapBuffers();
+
 	static void DrawTriangle(const Vec3& vertex1, const Vec3& vertex2, const Vec3& vertex3, uint32_t color);
 	static void DrawRectangle(const Vec3& vertex1, const Vec3& vertex2, const Vec3& vertex3, const Vec3& vertex4);
 	static void DrawCube_Deprecated(GLfloat xPos, GLfloat yPos, GLfloat zPos);
@@ -49,7 +67,18 @@ struct Graphics
 
 };
 
+class Camera
+{
+private:
 
+public:
+	Camera() = default;
+	~Camera() = default;
+	void MoveForward() { camVec -= glm::vec3(0.0f,0.0f,0.05f); }
+	void MoveBackward() { camVec += glm::vec3(0.0f, 0.0f, 0.05f); }
+	glm::mat4 view = glm::mat4(1.0f);
+	glm::vec3 camVec = glm::vec3(0.f, 0.f, 0.f);
+};
 
 
 
