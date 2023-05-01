@@ -1,10 +1,10 @@
 #include "App.h"
-#include "Graphics.h"
+#include "Renderer.h"
 
 void App::Setup()
 {
-    m_isRunning = Graphics::OpenWindow();
-    Graphics::GLSetup();
+    m_isRunning = Renderer::OpenWindow();
+    Renderer::GLSetup();
 }
 
 void App::Input()
@@ -23,11 +23,11 @@ void App::Input()
             case SDL_MOUSEWHEEL:
                 if (event.wheel.y > 0) {
                     std::cout << "wheel forward\n";
-                    Graphics::camera->camVec += glm::vec3(0.0f, 0.0f, 0.1f);
+                    Renderer::GetCamera()->MoveForward();
                 }
                 else if (event.wheel.y < 0) {
                     std::cout << "wheel backward\n";
-                    Graphics::camera->camVec -= glm::vec3(0.0f, 0.0f, 0.1f);
+                    Renderer::GetCamera()->MoveBackward();
                 }
                 break;
         }
@@ -37,16 +37,16 @@ void App::Input()
 
 void App::Update()
 {
-    Graphics::Update();
+    Renderer::Update();
 }
 
 void App::Render()
 {
-    Graphics::RenderFrame();
-    Graphics::ClearScreen(0.2, 0.0, 0.6, 1.0);
+    Renderer::ClearScreen(0.2, 0.0, 0.6, 1.0);
+    Renderer::RenderFrame();
 }
 
 void App::Destroy()
 {
-    Graphics::CloseWindow();
+    Renderer::CloseWindow();
 }
