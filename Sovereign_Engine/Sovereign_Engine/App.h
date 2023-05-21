@@ -4,7 +4,6 @@
 
 #include "enumerations.h"
 #include "RendererInterface.h"
-#include "RendererAPI.h"
 
 class App
 {

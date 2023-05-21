@@ -1,5 +1,10 @@
 #include "App.h"
 #include <iostream>
+#include "SDL.h"
+
+class Renderer_GL;
+class Renderer_Vulk;
+class Renderer_DX;
 
 App::App() :
     m_isRunning(false),
@@ -56,6 +61,7 @@ void App::Update()
 void App::Render()
 {
     m_renderer->Render();
+
 }
 
 void App::Destroy()
@@ -74,32 +80,7 @@ void App::SetIsRunning(bool isRunning) {
 }
 
 void App::CreateRenderer() {
-    std::string renderer;
-    switch (m_rendererAPI)
-    {
-        case Renderer_API_Open_GL:
-		{
-            m_renderer = std::make_unique<Renderer_GL>();
-            renderer = "Open GL";
-			break;
-		}
-		case Renderer_API_Vulkan:
-        {
-            m_renderer = std::make_unique<Renderer_Vulk>();
-            renderer = "Vulkan";
-			break;
-        }
-
-		case Renderer_API_DX3D:
-        {
-            m_renderer = std::make_unique<Renderer_DX>();
-            renderer = "Direct X 3D";
-            break;
-        }
-
-    }
-
-    std::cout << "Created Renderer: " << renderer << std::endl;
+    m_renderer = RendererInterface::MakeRenderer(m_rendererAPI);
 }
 
 
