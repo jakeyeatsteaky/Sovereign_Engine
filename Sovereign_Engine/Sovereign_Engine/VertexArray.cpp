@@ -36,12 +36,12 @@
 //	glDeleteVertexArrays((GLsizei)m_size, &m_idx);
 //}
 //
-//void VertexArray::AddBuffer(VertexBuffer& buffer)
+//void VertexArray::AddBuffer(IndexBuffer& buffer)
 //{
 //	m_buffers.push_back(buffer);
 //}
 //
-//VertexBuffer& VertexArray::GetBuffer(size_t idx)
+//IndexBuffer& VertexArray::GetBuffer(size_t idx)
 //{
 //	return m_buffers[idx];
 //}

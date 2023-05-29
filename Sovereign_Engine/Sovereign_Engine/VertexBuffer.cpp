@@ -1,40 +1,54 @@
-//#include "VertexBuffer.h"
-//
-//VertexBuffer::VertexBuffer()
-//{
-//	glGenBuffers(1, &vbo_idx);
-//	glGenBuffers(1, &ebo_idx);
-//}
-//
-//VertexBuffer::VertexBuffer(const VertexBuffer& other) :
-//	vbo_idx(other.vbo_idx),
-//	ebo_idx(other.ebo_idx)
-//{
-//
-//}
-//
-//void VertexBuffer::Bind(float vertices[], unsigned int indices[], GLsizeiptr sizevert, GLsizeiptr sizeInd)
-//{
-//	glBindBuffer(GL_ARRAY_BUFFER, vbo_idx);
-//	glBufferData(GL_ARRAY_BUFFER, sizevert, vertices, GL_STATIC_DRAW);
-//
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_idx);
-//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeInd, indices, GL_STATIC_DRAW);
-//}
-//
-//unsigned int VertexBuffer::GetIdx() 
-//{
-//	return vbo_idx;
-//}
-//
-//
-//void VertexBuffer::ClearFromBinding()
-//{
-//	glBindBuffer(GL_ARRAY_BUFFER, 0);
-//}
-//
-//void VertexBuffer::Destroy() 
-//{
-//	glDeleteBuffers(1, &vbo_idx);
-//	glDeleteBuffers(1, &ebo_idx);
-//}
+#include "VertexBuffer.h"
+#include <string>
+
+VertexBuffer::VertexBuffer(const float* vertices, const GLsizeiptr VertexBufferSize) :
+	m_vertices(new float[VertexBufferSize]),
+	m_verticesSize(VertexBufferSize)
+{	
+	std::memcpy(m_vertices, vertices, (size_t)VertexBufferSize);
+
+	glGenBuffers(1, &m_vboIdx);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboIdx);
+	glBufferData(GL_ARRAY_BUFFER, m_verticesSize, m_vertices, GL_STATIC_DRAW);
+}
+
+VertexBuffer::VertexBuffer(const VertexBuffer& other): 
+	m_vboIdx(other.m_vboIdx),
+	m_vertices(other.m_vertices),
+	m_verticesSize(other.m_verticesSize)
+{
+	// TODO: Implement copy constructure when use case arises
+	printf("COPY CONSTRUCTOR NOT IMPLEMENTED VERTEXBUFFFER\n");
+}
+
+VertexBuffer::~VertexBuffer()
+{
+	Destroy();
+}
+
+void VertexBuffer::Bind(const float* vertices, const GLsizeiptr VertexBufferSize)
+{
+	m_vertices = new float[VertexBufferSize];
+	m_verticesSize = VertexBufferSize;
+	std::memcpy(m_vertices, vertices, (size_t)VertexBufferSize);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboIdx);
+	glBufferData(GL_ARRAY_BUFFER, m_verticesSize, m_vertices, GL_STATIC_DRAW);
+
+}
+
+unsigned int VertexBuffer::GetIdx() 
+{
+	return m_vboIdx;
+}
+
+
+void VertexBuffer::ClearFromBinding()
+{
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void VertexBuffer::Destroy() 
+{
+	delete m_vertices;
+}

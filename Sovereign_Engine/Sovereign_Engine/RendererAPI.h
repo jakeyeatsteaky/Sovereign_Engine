@@ -9,6 +9,8 @@
 #include <SDL_opengl.h>
 
 #include "Shaders.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 constexpr const char* WINDOW_TITLE = "Sovereign Engine";
 constexpr int WindowWidth = 800;

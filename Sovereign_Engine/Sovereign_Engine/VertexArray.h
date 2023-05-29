@@ -3,7 +3,7 @@
 //
 //#include <vector>
 //
-//#include "VertexBuffer.h"
+//#include "IndexBuffer.h"
 //
 //
 //class VertexArray
@@ -18,12 +18,12 @@
 //	void BindBuffer(size_t idx);
 //	void ClearFromBinding();
 //	void Destroy();
-//	void AddBuffer(VertexBuffer& buffer);
-//	VertexBuffer& GetBuffer(size_t idx);
+//	void AddBuffer(IndexBuffer& buffer);
+//	IndexBuffer& GetBuffer(size_t idx);
 //
 //private:
 //	size_t m_size;
-//	std::vector<VertexBuffer> m_buffers;
+//	std::vector<IndexBuffer> m_buffers;
 //	unsigned int m_idx;
 //};
 //
