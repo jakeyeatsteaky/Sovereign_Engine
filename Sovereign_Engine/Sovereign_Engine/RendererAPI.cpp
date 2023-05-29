@@ -44,8 +44,8 @@ void Renderer_GL::Init() const
 		1, 2, 3    // second triangle
 	};
 
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	glGenVertexArrays(1, &m_vertexArray);
+	glBindVertexArray(m_vertexArray);
 
 	VertexBuffer vbo(vertices, sizeof(vertices));
 	IndexBuffer ibo(indices, sizeof(indices));
@@ -68,7 +68,7 @@ void Renderer_GL::Render() const {
 	//TODO===============================
 	// mesh operations
 	glUseProgram(shaders[0]->getID());
-	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+	glBindVertexArray(m_vertexArray); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	//ENDTODO=============================
 

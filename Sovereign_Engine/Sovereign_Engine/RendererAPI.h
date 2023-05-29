@@ -32,7 +32,7 @@ public:
 	virtual void ClearScreen() const override;
 	virtual void SetupShaders() const override;
 
-	mutable unsigned int VBO, VAO;
+	mutable unsigned int m_vertexArray;
 
 	// Renderer_GL Specific functions
 
