@@ -29,11 +29,9 @@ IndexBuffer::~IndexBuffer()
 void IndexBuffer::Bind(const unsigned int* indices, const GLsizeiptr indexBufferSize)
 {
 	std::memcpy(m_indices, indices, (size_t)indexBufferSize);
-
 	glGenBuffers(1, &m_iboIdx);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboIdx);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicesSize, m_indices, GL_STATIC_DRAW);
-
 }
 
 unsigned int IndexBuffer::GetIdx()
@@ -50,4 +48,5 @@ void IndexBuffer::ClearFromBinding()
 void IndexBuffer::Destroy()
 {
 	delete m_indices;
+	printf("Deleted index buffer\n");
 }

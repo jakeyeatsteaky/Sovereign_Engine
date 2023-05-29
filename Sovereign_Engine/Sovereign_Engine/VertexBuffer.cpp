@@ -51,4 +51,5 @@ void VertexBuffer::ClearFromBinding()
 void VertexBuffer::Destroy() 
 {
 	delete m_vertices;
+	printf("Deleted vertex buffer\n");
 }

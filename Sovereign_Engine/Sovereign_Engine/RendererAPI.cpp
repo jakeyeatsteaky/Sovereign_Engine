@@ -33,10 +33,10 @@ void Renderer_GL::Init() const
 	// Abstract this to a mesh
 
 	float vertices[] = {
-	 0.25f,  0.5f, 0.0f,  // top right
-	 0.25f, -0.25f, 0.0f,  // bottom right
-	-0.5f, -0.5f, 0.0f,  // bottom left
-	-0.25f,  0.25f, 0.0f   // top left 
+	 0.25f,  0.5f, 0.0f,
+	 0.25f, -0.25f, 0.0f, 
+	-0.5f, -0.5f, 0.0f,  
+	-0.25f,  0.25f, 0.0f   
 	};
 
 	unsigned int indices[] = {  // note that we start from 0!
@@ -46,8 +46,6 @@ void Renderer_GL::Init() const
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-
 
 	VertexBuffer vbo(vertices, sizeof(vertices));
 	IndexBuffer ibo(indices, sizeof(indices));
@@ -55,15 +53,9 @@ void Renderer_GL::Init() const
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//ibo.ClearFromBinding();
 	vbo.ClearFromBinding();
-
-	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	glBindVertexArray(0);
-	ibo.ClearFromBinding();
-	// ENDTODO===================================
+	ibo.ClearFromBinding(); // ibo unvbinding has to be done AFTER vao is unbound
 
 
 	SetupShaders();
