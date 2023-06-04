@@ -39,6 +39,22 @@ void Renderer_GL::Init() const
 		0, 1, 3,   // first triangle
 		1, 2, 3    // second triangle
 	};
+
+#if 0
+	HERES WHAT I AM THINKING
+		--> Since all the mesh needs is a vertexArray, then I want to be able to separate vertexarray creation
+		from the creation of vertex bufferes and index buffers
+
+		I think vertex buffers should be imported upon setup of the app
+
+		from there, they can be stored in a data structure which holds vertex buffers and index buffers
+
+		when a vertex array is created, it accesses an index in that data structure.
+
+		Create Vertex array -> DataStructure.bind()->VBO --> DataStrct7ure.bindf()->IBO
+
+		Then the vertex attribute layout can be set and the vertex array can be moved to the specific mesh
+#endif
 	
 	m_vao = new VertexArray();						// Create Vertex Array Object, and Bind
 	VertexBuffer vbo(vertices, sizeof(vertices));	// Bind Vertex Buffer to this VAO
