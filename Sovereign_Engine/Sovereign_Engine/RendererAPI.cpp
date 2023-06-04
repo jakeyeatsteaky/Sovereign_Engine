@@ -28,43 +28,31 @@ void Renderer_GL::Init() const
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-
-	//TODO ==================================
-	// Abstract this to a mesh
-
 	float vertices[] = {
-	 0.25f,  0.5f, 0.0f,  // top right
-	 0.25f, -0.25f, 0.0f,  // bottom right
-	-0.5f, -0.5f, 0.0f,  // bottom left
-	-0.25f,  0.25f, 0.0f   // top left 
+	 0.25f,  0.35f, 0.0f,	1.0f, 0.0f, 0.0f, 
+	 0.25f, -0.25f, 0.0f,	0.0f, 1.0f, 0.0f, 
+	-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f, 
+	-0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f 
 	};
 
 	unsigned int indices[] = {  // note that we start from 0!
 		0, 1, 3,   // first triangle
 		1, 2, 3    // second triangle
 	};
-
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-
-
-	VertexBuffer vbo(vertices, sizeof(vertices));
-	IndexBuffer ibo(indices, sizeof(indices));
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	m_vao = new VertexArray();						// Create Vertex Array Object, and Bind
+	VertexBuffer vbo(vertices, sizeof(vertices));	// Bind Vertex Buffer to this VAO
+	IndexBuffer ibo(indices, sizeof(indices));		// Bind IBO to this VAO
 
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//ibo.ClearFromBinding();
+	VertexLayout vlo(2);							// Create Vertex Layout shell for 2 attributes
+	vlo.SetLayout(0, 3, 6, 0);
+	vlo.SetLayout(1, 3, 6, 3);
+	std::cout << std::boolalpha << vlo.ReadyForUse() << std::endl;
+
 	vbo.ClearFromBinding();
 
-	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	glBindVertexArray(0);
 	ibo.ClearFromBinding();
-	// ENDTODO===================================
-
 
 	SetupShaders();
 }
@@ -73,12 +61,20 @@ void Renderer_GL::Render() const {
 
 	ClearScreen();
 
-	//TODO===============================
-	// mesh operations
+
+
+	//TODO #5 ===============================
+	
+	//	mesh1->Bind() --> specify shader program, then bind the vao
+
 	glUseProgram(shaders[0]->getID());
-	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+	m_vao->Bind(); 
+
+	//ENDTODO #5 =============================
+
+
+
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	//ENDTODO=============================
 
 	SDL_GL_SwapWindow(window);
 }
@@ -96,11 +92,11 @@ void Renderer_GL::OpenWindow() const {
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 	// Create the window using SDL
-	window = SDL_CreateWindow(WINDOW_TITLE, 
+	window = SDL_CreateWindow(Renderer::WINDOW_TITLE, 
 							  SDL_WINDOWPOS_UNDEFINED, 
 							  SDL_WINDOWPOS_UNDEFINED, 
-							  (int)WindowWidth,
-							  (int)WindowHeight, 
+							  (int)Renderer::WindowWidth,
+							  (int)Renderer::WindowHeight, 
 							  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	if (!window) {
 		std::cerr << "Error creating SDL window\n";
@@ -122,7 +118,7 @@ void Renderer_GL::OpenWindow() const {
 		std::cerr << "Error initializing glewExperimental\n";
 	}
 
-	glViewport(0, 0, (GLsizei)WindowWidth, (GLsizei)WindowHeight);
+	glViewport(0, 0, (GLsizei)Renderer::WindowWidth, (GLsizei)Renderer::WindowHeight);
 	
 }
 
@@ -134,7 +130,7 @@ void Renderer_GL::ClearScreen() const
 
 void Renderer_GL::SetupShaders() const 
 {
-	std::shared_ptr<Shader> shader = std::make_shared<Shader>(VERTEX_PATH, FRAGMENT_PATH);
+	std::shared_ptr<Shader> shader = std::make_shared<Shader>(Renderer::VERTEX_PATH, Renderer::FRAGMENT_PATH);
 	shaders.push_back(shader);
 }
 

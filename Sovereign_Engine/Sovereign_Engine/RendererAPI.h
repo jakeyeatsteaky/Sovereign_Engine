@@ -9,15 +9,21 @@
 #include <SDL_opengl.h>
 
 #include "Shaders.h"
+#include "VertexArray.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexLayout.h"
 
-constexpr const char* WINDOW_TITLE = "Sovereign Engine";
-constexpr int WindowWidth = 800;
-constexpr int WindowHeight = 600;
-constexpr uint32_t CLEAR_COLOR = 0xff00ffff;
-constexpr const char* VERTEX_PATH = "../shaders/shader1.vert";
-constexpr const char* FRAGMENT_PATH = "../shaders/shader1.frag";
+namespace Renderer
+{
+	constexpr const char* WINDOW_TITLE = "Sovereign Engine";
+	constexpr int WindowWidth = 800;
+	constexpr int WindowHeight = 600;
+	constexpr uint32_t CLEAR_COLOR = 0xff00ffff;
+	constexpr const char* VERTEX_PATH = "../shaders/shader1.vert";
+	constexpr const char* FRAGMENT_PATH = "../shaders/shader1.frag";
+}
+
 
 class Renderer_GL : public RendererInterface {
 public:
@@ -32,8 +38,8 @@ public:
 	virtual void ClearScreen() const override;
 	virtual void SetupShaders() const override;
 
-	mutable unsigned int VBO, VAO;
-
+	mutable unsigned int m_vertexArray;
+	mutable VertexArray* m_vao;
 	// Renderer_GL Specific functions
 
 private:

@@ -12,7 +12,7 @@ class Mesh;
 
 class RendererInterface {
 public:
-	RendererInterface() = default;
+	RendererInterface() : m_activeAPI(Renderer_Api_None) {};
 	~RendererInterface();
 
 	static std::unique_ptr<RendererInterface> MakeRenderer(RENDERER_API api);
