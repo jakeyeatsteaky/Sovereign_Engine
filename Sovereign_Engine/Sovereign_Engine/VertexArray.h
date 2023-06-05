@@ -8,7 +8,8 @@ class VertexArray
 {
 public:
 	VertexArray();
-	VertexArray(const VertexArray& other);
+	VertexArray(const VertexArray& copy);
+	VertexArray(const VertexArray&& move);
 	~VertexArray();
 
 	unsigned int GetIdx();

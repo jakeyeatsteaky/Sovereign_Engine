@@ -28,8 +28,9 @@ int main(int argc, char* argv[])
 2) [x] Create Index Buffer Object
 3) [x] Create Vertex Array Object
 4) [x] Create Vertex Layout Object
-5) [ ] Create Mesh Class
-6) [ ] Init a mesh and draw it
+5) [x] Create Mesh Class
+6) [x] Init a mesh and draw it
+		[ ] Passing the VertexArray into the Mesh object via pointer works, but try to pass via rvalue reference (RendererApi.cpp, Renderer_GL::Init())
 7) [ ] Check destruction of objects and verify with print statements
 
 8) [ ] Rule of 5 for my existing render classes (vbuf, ibuf, varray, vlayout, mesh)
