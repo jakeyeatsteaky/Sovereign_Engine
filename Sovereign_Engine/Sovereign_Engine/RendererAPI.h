@@ -13,6 +13,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexLayout.h"
+#include "Mesh.h"
 
 namespace Renderer
 {
@@ -38,9 +39,10 @@ public:
 	virtual void ClearScreen() const override;
 	virtual void SetupShaders() const override;
 
-	mutable unsigned int m_vertexArray;
-	mutable VertexArray* m_vao;
+	//mutable unsigned int m_vertexArray;
+// 	mutable VertexArray* m_vao;
 	// Renderer_GL Specific functions
+	mutable Mesh* m_mesh;
 
 private:
 

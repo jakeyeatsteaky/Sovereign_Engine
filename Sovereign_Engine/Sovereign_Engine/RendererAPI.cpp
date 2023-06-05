@@ -42,7 +42,7 @@ void Renderer_GL::Init() const
 
 #if 0
 	HERES WHAT I AM THINKING
-		--> Since all the mesh needs is a vertexArray, then I want to be able to separate vertexarray creation
+		-- > Since all the mesh needs is a vertexArray, then I want to be able to separate vertexarray creation
 		from the creation of vertex bufferes and index buffers
 
 		I think vertex buffers should be imported upon setup of the app
@@ -51,47 +51,35 @@ void Renderer_GL::Init() const
 
 		when a vertex array is created, it accesses an index in that data structure.
 
-		Create Vertex array -> DataStructure.bind()->VBO --> DataStrct7ure.bindf()->IBO
+		Create Vertex array->DataStructure.bind()->VBO-- > DataStrct7ure.bindf()->IBO
 
 		Then the vertex attribute layout can be set and the vertex array can be moved to the specific mesh
 #endif
-	
-	m_vao = new VertexArray();						// Create Vertex Array Object, and Bind
+
+	VertexArray vao;						// Create Vertex Array Object, and Bind
 	VertexBuffer vbo(vertices, sizeof(vertices));	// Bind Vertex Buffer to this VAO
 	IndexBuffer ibo(indices, sizeof(indices));		// Bind IBO to this VAO
+	VertexLayout vlo(2);
 
-	VertexLayout vlo(2);							// Create Vertex Layout shell for 2 attributes
 	vlo.SetLayout(0, 3, 6, 0);
 	vlo.SetLayout(1, 3, 6, 3);
-	std::cout << std::boolalpha << vlo.ReadyForUse() << std::endl;
-
+	vao.ClearFromBinding();
 	vbo.ClearFromBinding();
-
-	glBindVertexArray(0);
 	ibo.ClearFromBinding();
-
 	SetupShaders();
+
+	m_mesh = new Mesh(std::move(vao), shaders[0]);
 }
 
 void Renderer_GL::Render() const {
 
 	ClearScreen();
 
+	m_mesh->SetShader();
+	m_mesh->Bind();
+	m_mesh->Draw();
 
-
-	//TODO #5 ===============================
 	
-	//	mesh1->Bind() --> specify shader program, then bind the vao
-
-	glUseProgram(shaders[0]->getID());
-	m_vao->Bind(); 
-
-	//ENDTODO #5 =============================
-
-
-
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 	SDL_GL_SwapWindow(window);
 }
 

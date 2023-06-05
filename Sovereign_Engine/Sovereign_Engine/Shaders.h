@@ -11,8 +11,9 @@ class Shader
 public:
 	Shader(const char* vertexPath, const char* fragmentPath);
 	~Shader();
-	void use() const;
+	void UseProgram() const;
 	unsigned int getID() const { return ID; }
+	
 
 	void setBoolUniform(const std::string& name, bool value) const;
 	void setIntUniform(const std::string& name, int value) const;
