@@ -17,6 +17,7 @@ public:
 	void Bind();
 	void Draw();
 	void SetShader();
+	void SetTexture();
 	void Render();
 
 private:

@@ -63,6 +63,13 @@ void Mesh::SetShader()
 		shadProg->UseProgram();
 }
 
+void Mesh::SetTexture()
+{
+	std::shared_ptr<Texture> texture = m_meshTexture.lock();
+	if (texture)
+		texture->Bind();
+}
+
 void Mesh::Draw()
 {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -70,6 +77,7 @@ void Mesh::Draw()
 
 void Mesh::Render()
 {
+	SetTexture();
 	SetShader();
 	Bind();
 	Draw();

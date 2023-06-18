@@ -42,9 +42,6 @@ public:
 	virtual void SetupShaders() const override;
 	virtual void SetupTextures() const override;
 
-	//mutable unsigned int m_vertexArray;
-// 	mutable VertexArray* m_vao;
-	// Renderer_GL Specific functions
 	mutable Mesh* m_mesh;
 
 private:

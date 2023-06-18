@@ -60,3 +60,8 @@ Texture::Texture(const char* pathToTexture, Extension_Type exType)
 	
 	}
 }
+
+void Texture::Bind()
+{
+	glBindTexture(GL_TEXTURE_2D, m_texIdx);
+}

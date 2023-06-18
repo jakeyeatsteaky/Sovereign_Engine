@@ -32,7 +32,10 @@ void Renderer_GL::Init() const
 	SetupShaders();
 	SetupTextures();
 
+	// Right now vertex buffer info is populated in the constructor for a mesh
+	// What shoiuld happen is vertex info should be passed in and mesh should be created that way
 	m_mesh = new Mesh(m_shaders[0], m_textures[0]);
+
 }
 
 void Renderer_GL::Render() const {

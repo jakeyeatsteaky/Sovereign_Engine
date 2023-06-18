@@ -8,6 +8,8 @@ public:
 	Texture() = default;
 	Texture(const char* pathToTexture, Extension_Type exType);
 
+	void Bind();
+
 
 private:
 	unsigned int m_texIdx;
