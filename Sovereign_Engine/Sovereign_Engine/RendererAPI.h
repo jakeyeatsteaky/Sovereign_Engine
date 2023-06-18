@@ -9,6 +9,7 @@
 #include <SDL_opengl.h>
 
 #include "Shaders.h"
+#include "Texture.h"
 #include "VertexArray.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -23,7 +24,7 @@ namespace Renderer
 	constexpr uint32_t CLEAR_COLOR = 0xff00ffff;
 	constexpr const char* VERTEX_PATH = "../shaders/shader1.vert";
 	constexpr const char* FRAGMENT_PATH = "../shaders/shader1.frag";
-	constexpr const char* TEXTURE_PATH = "../assets/textures/wall.jpg";
+	constexpr const char* TEXTURE_PATH = "../assets/textures/abc.jpg";
 }
 
 
@@ -39,6 +40,7 @@ public:
 	virtual void OpenWindow() const override;
 	virtual void ClearScreen() const override;
 	virtual void SetupShaders() const override;
+	virtual void SetupTextures() const override;
 
 	//mutable unsigned int m_vertexArray;
 // 	mutable VertexArray* m_vao;
@@ -47,10 +49,11 @@ public:
 
 private:
 
-	mutable SDL_Window* window;
-	mutable SDL_Renderer* renderer;
-	mutable SDL_GLContext context;
-	mutable std::vector<std::shared_ptr<Shader>> shaders;
+	mutable SDL_Window* m_window;
+	mutable SDL_Renderer* m_renderer;
+	mutable SDL_GLContext m_context;
+	mutable std::vector<std::shared_ptr<Shader>>m_shaders;
+	mutable std::vector<std::shared_ptr<Texture>> m_textures;
 
 };
 
@@ -64,6 +67,7 @@ public:
 	virtual void OpenWindow() const override;
 	virtual void ClearScreen() const override;
 	virtual void SetupShaders() const override;
+	virtual void SetupTextures() const override;
 };
 
 class Renderer_DX : public RendererInterface {
@@ -75,6 +79,7 @@ public:
 	virtual void OpenWindow() const override;
 	virtual void ClearScreen() const override;
 	virtual void SetupShaders() const override;
+	virtual void SetupTextures() const override;
 };
 
 

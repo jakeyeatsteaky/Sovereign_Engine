@@ -3,18 +3,18 @@
 
 // =================================== RENDERER_OPEN_GL ===================================
 Renderer_GL::Renderer_GL() :
-	window(nullptr),
-	renderer(nullptr),
-	context(NULL)
+	m_window(nullptr),
+	m_renderer(nullptr),
+	m_context(NULL)
 {
 
 }
 
 Renderer_GL::~Renderer_GL()
 {
-	SDL_GL_DeleteContext(context);
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+	SDL_GL_DeleteContext(m_context);
+	SDL_DestroyRenderer(m_renderer);
+	SDL_DestroyWindow(m_window);
 	SDL_Quit();
 }
 
@@ -29,49 +29,19 @@ void Renderer_GL::Init() const
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	float vertices[] = {
-		// positions          // colors           // texture coords
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
-	};
-
-	unsigned int indices[] = {  // note that we start from 0!
-		0, 1, 3,   // first triangle
-		1, 2, 3    // second triangle
-	};
-
-
-	VertexArray vao;						// Create Vertex Array Object, and Bind
-	VertexBuffer vbo(vertices, sizeof(vertices));	// Bind Vertex Buffer to this VAO
-	IndexBuffer ibo(indices, sizeof(indices));		// Bind IBO to this VAO
-	VertexLayout vlo(3);
-
-	vlo.SetLayout(0, 3, 8, 0);
-	vlo.SetLayout(1, 3, 8, 3);
-	vlo.SetLayout(2, 2, 8, 6);
-	vao.ClearFromBinding();
-	vbo.ClearFromBinding();
-	ibo.ClearFromBinding();
-
-	Texture texture(Renderer::TEXTURE_PATH);
-
 	SetupShaders();
+	SetupTextures();
 
-	m_mesh = new Mesh(std::move(vao), shaders[0]);
+	m_mesh = new Mesh(m_shaders[0], m_textures[0]);
 }
 
 void Renderer_GL::Render() const {
 
 	ClearScreen();
-
-	m_mesh->SetShader();
-	m_mesh->Bind();
-	m_mesh->Draw();
-
 	
-	SDL_GL_SwapWindow(window);
+	m_mesh->Render();
+	
+	SDL_GL_SwapWindow(m_window);
 }
 
 void Renderer_GL::OpenWindow() const {
@@ -87,20 +57,20 @@ void Renderer_GL::OpenWindow() const {
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 	// Create the window using SDL
-	window = SDL_CreateWindow(Renderer::WINDOW_TITLE, 
+	m_window = SDL_CreateWindow(Renderer::WINDOW_TITLE, 
 							  SDL_WINDOWPOS_UNDEFINED, 
 							  SDL_WINDOWPOS_UNDEFINED, 
 							  (int)Renderer::WindowWidth,
 							  (int)Renderer::WindowHeight, 
 							  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-	if (!window) {
+	if (!m_window) {
 		std::cerr << "Error creating SDL window\n";
 		return;
 	}
 
 	// OpenGL context
-	context = SDL_GL_CreateContext(window);
-	if (!context)
+	m_context = SDL_GL_CreateContext(m_window);
+	if (!m_context)
 	{
 		std::cerr << "Error creating OpenGL Context\n";
 		return;
@@ -126,7 +96,13 @@ void Renderer_GL::ClearScreen() const
 void Renderer_GL::SetupShaders() const 
 {
 	std::shared_ptr<Shader> shader = std::make_shared<Shader>(Renderer::VERTEX_PATH, Renderer::FRAGMENT_PATH);
-	shaders.push_back(shader);
+	m_shaders.push_back(shader);
+}
+
+void Renderer_GL::SetupTextures() const
+{
+	std::shared_ptr<Texture> texture = std::make_shared<Texture>(Renderer::TEXTURE_PATH, Extension_Type_JPG);
+	m_textures.push_back(texture);
 }
 
 
@@ -177,6 +153,11 @@ void Renderer_Vulk::SetupShaders() const
 	
 }
 
+void Renderer_Vulk::SetupTextures() const
+{
+
+}
+
 
 // =================================== RENDERER_DX3D ===================================
 
@@ -209,6 +190,11 @@ void Renderer_DX::ClearScreen() const {
 void Renderer_DX::SetupShaders() const
 {
 	
+}
+
+void Renderer_DX::SetupTextures() const
+{
+
 }
 
 

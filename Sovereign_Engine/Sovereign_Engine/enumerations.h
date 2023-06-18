@@ -8,6 +8,11 @@ typedef enum {
 	Renderer_API_DX3D
 } RENDERER_API;
 
+typedef enum {
+	Extension_Type_JPG = 0,
+	Extension_Type_PNG = 1
+} Extension_Type;
+
 
 
 
