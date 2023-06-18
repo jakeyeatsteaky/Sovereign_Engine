@@ -1,4 +1,5 @@
 #include "RendererAPI.h"
+#include "Texture.h"
 
 // =================================== RENDERER_OPEN_GL ===================================
 Renderer_GL::Renderer_GL() :
@@ -29,10 +30,11 @@ void Renderer_GL::Init() const
 	glLoadIdentity();
 
 	float vertices[] = {
-	 0.25f,  0.35f, 0.0f,	1.0f, 0.0f, 0.0f, 
-	 0.25f, -0.25f, 0.0f,	0.0f, 1.0f, 0.0f, 
-	-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f, 
-	-0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f 
+		// positions          // colors           // texture coords
+		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
 	};
 
 	unsigned int indices[] = {  // note that we start from 0!
@@ -40,32 +42,21 @@ void Renderer_GL::Init() const
 		1, 2, 3    // second triangle
 	};
 
-#if 0
-	HERES WHAT I AM THINKING
-		-- > Since all the mesh needs is a vertexArray, then I want to be able to separate vertexarray creation
-		from the creation of vertex bufferes and index buffers
-
-		I think vertex buffers should be imported upon setup of the app
-
-		from there, they can be stored in a data structure which holds vertex buffers and index buffers
-
-		when a vertex array is created, it accesses an index in that data structure.
-
-		Create Vertex array->DataStructure.bind()->VBO-- > DataStrct7ure.bindf()->IBO
-
-		Then the vertex attribute layout can be set and the vertex array can be moved to the specific mesh
-#endif
 
 	VertexArray vao;						// Create Vertex Array Object, and Bind
 	VertexBuffer vbo(vertices, sizeof(vertices));	// Bind Vertex Buffer to this VAO
 	IndexBuffer ibo(indices, sizeof(indices));		// Bind IBO to this VAO
-	VertexLayout vlo(2);
+	VertexLayout vlo(3);
 
-	vlo.SetLayout(0, 3, 6, 0);
-	vlo.SetLayout(1, 3, 6, 3);
+	vlo.SetLayout(0, 3, 8, 0);
+	vlo.SetLayout(1, 3, 8, 3);
+	vlo.SetLayout(2, 2, 8, 6);
 	vao.ClearFromBinding();
 	vbo.ClearFromBinding();
 	ibo.ClearFromBinding();
+
+	Texture texture(Renderer::TEXTURE_PATH);
+
 	SetupShaders();
 
 	m_mesh = new Mesh(std::move(vao), shaders[0]);
@@ -128,7 +119,7 @@ void Renderer_GL::OpenWindow() const {
 
 void Renderer_GL::ClearScreen() const 
 {
-	glClearColor(0.5, 0.3, 1.0, 1.0);
+	glClearColor((GLclampf)0.5,(GLclampf) 0.3, (GLclampf)1.0,(GLclampf) 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

@@ -5,8 +5,8 @@ void VertexLayout::SetLayout(size_t index, size_t size, size_t stride, size_t of
 {
 	if (m_attributeCount < m_numAttributes)
 	{
-		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
-		glEnableVertexAttribArray(index);
+		glVertexAttribPointer((GLuint)index, (GLuint)size, GL_FLOAT, GL_FALSE, (GLuint)stride * sizeof(float), (void*)((GLuint)offset * sizeof(float)));
+		glEnableVertexAttribArray((GLuint)index);
 
 		m_attributeCount++;
 		if (m_attributeCount == m_numAttributes)

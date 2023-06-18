@@ -23,6 +23,7 @@ namespace Renderer
 	constexpr uint32_t CLEAR_COLOR = 0xff00ffff;
 	constexpr const char* VERTEX_PATH = "../shaders/shader1.vert";
 	constexpr const char* FRAGMENT_PATH = "../shaders/shader1.frag";
+	constexpr const char* TEXTURE_PATH = "../assets/textures/wall.jpg";
 }
 
 

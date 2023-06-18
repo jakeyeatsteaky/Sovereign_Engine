@@ -24,17 +24,19 @@ int main(int argc, char* argv[])
 /////////////////// GLOBAL TODO ///////////////////
 #if 0
 
-1) [x] Create Vertex Buffer Object
-2) [x] Create Index Buffer Object
-3) [x] Create Vertex Array Object
-4) [x] Create Vertex Layout Object
-5) [x] Create Mesh Class
-6) [x] Init a mesh and draw it
-		[ ] Passing the VertexArray into the Mesh object via pointer works, but try to pass via rvalue reference (RendererApi.cpp, Renderer_GL::Init())
-7) [ ] Check destruction of objects and verify with print statements
+ 1) [x] Create Vertex Buffer Object
+ 2) [x] Create Index Buffer Object
+ 3) [x] Create Vertex Array Object
+ 4) [x] Create Vertex Layout Object
+ 5) [x] Create Mesh Class
+ 6) [x] Init a mesh and draw it
+		[x] Passing the VertexArray into the Mesh object via pointer works, but try to pass via rvalue reference (RendererApi.cpp, Renderer_GL::Init())
+ 7) [ ] Check destruction of objects and verify with print statements
+ 8) [ ] Put all that vertex stuff inside a mesh object.  Mesh should have a shader, texture and vertex info
 
-8) [ ] Rule of 5 for my existing render classes (vbuf, ibuf, varray, vlayout, mesh)
-
+** Copy ctor / assignops and Move ctor / assignops for all existing classes
+ 9) [ ] Rule of 5 for my existing render classes (vbuf, ibuf, varray, vlayout, mesh)
+10) [ ] Make some primitive shapes.
 
 #endif
 

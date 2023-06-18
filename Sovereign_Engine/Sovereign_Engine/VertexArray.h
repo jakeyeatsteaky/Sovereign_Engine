@@ -9,7 +9,7 @@ class VertexArray
 public:
 	VertexArray();
 	VertexArray(const VertexArray& copy);
-	VertexArray(const VertexArray&& move);
+	VertexArray(const VertexArray&& move) noexcept;
 	~VertexArray();
 
 	unsigned int GetIdx();

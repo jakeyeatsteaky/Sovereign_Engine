@@ -13,7 +13,7 @@ VertexArray::VertexArray(const VertexArray& copy) : m_vaoIdx(copy.m_vaoIdx)
 	glBindVertexArray(m_vaoIdx);
 }
 
-VertexArray::VertexArray(const VertexArray&& move) : m_vaoIdx(move.m_vaoIdx)
+VertexArray::VertexArray(const VertexArray&& move) noexcept : m_vaoIdx(move.m_vaoIdx)
 {
 	glBindVertexArray(m_vaoIdx);
 }
